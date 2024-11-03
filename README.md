@@ -44,9 +44,15 @@ cargo run
 
 Follow the on-screen instructions to play the game.
 
-## Contributing
+## Developing
 
-Contributions are welcome! Please fork the repository and submit a pull request.
+### Useful commands
+
+Check for errors in the code.
+
+```sh
+cargo check
+```
 
 ## License
 
