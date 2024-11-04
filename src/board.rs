@@ -1,6 +1,7 @@
 use std::io;
 
 const SHIP_SIZE: usize = 2;
+const SHIP_COUNT: usize = 2;
 
 #[derive(Clone)]
 pub struct Board {
@@ -22,7 +23,6 @@ impl Board {
 
     // Returns true if the ship was placed successfully, false otherwise.
     // The ship is placed horizontally if orientation is 'H', and vertically if orientation is 'V'.
-    // The ship is placed at the given row and column.
     // The ship is represented by the character 'S'.
     // The ship cannot be placed if it would go out of bounds or overlap with another ship.
     // If the ship is placed successfully, the function returns true and updates the grid.
@@ -67,10 +67,57 @@ impl Board {
         }
     }
 
-    fn place_ship(&mut self, player_name: &str) {
-        let mut ships = 2;
-        while ships > 0 {}
+    // Return the coordinate and the ship orientation from player input.
+    // Loops until the player enters valid coordinates.
+    fn prompt_for_ship_placement(&self) -> (usize, usize, char) {
+        loop {
+            println!("Enter the coordinates and orientation for your ship e.g. 3 4 H");
+
+            let mut input = String::new();
+            io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read line");
+
+            let parts: Vec<&str> = input.trim().split_whitespace().collect();
+            if parts.len() == 3 {
+                if let (Ok(x), Ok(y), Ok(orientation)) = (
+                    parts[0].parse::<usize>(),
+                    parts[1].parse::<usize>(),
+                    parts[2].parse::<char>(),
+                ) {
+                    if orientation == 'H' || orientation == 'V' {
+                        if x < self.grid_size && y < self.grid_size {
+                            return (x, y, orientation);
+                        } else {
+                            println!("Coordinates out of bounds. Please enter values between 0 and {} for x and 0 and {} for y.", self.grid_size - 1, self.grid_size - 1);
+                        }
+                    }
+                }
+            } else {
+                println!("Invalid input. Please enter coordinates in the form 'x y orientation' where x and y are integers, and are separated by a single space, and orientation is either 'H' or 'V'.");
+            }
+        }
     }
+
+    fn place_ship(&mut self, player_name: &str) {
+        let mut ships_remaining = SHIP_COUNT;
+        while ships_remaining > 0 {
+            println!(
+                "{}, place your ship by typing in the coordinates (integers) and the orientation (either \"H\" or \"V\"). Vertical ships extend downward and horizontal ships extend to the right from their coordinate. Ships remaining: {}",
+                player_name, ships_remaining
+            );
+
+            let (x, y, orientation) = self.prompt_for_ship_placement();
+            let place_ship_result = self.try_to_place_ship(x, y, orientation);
+            if place_ship_result {
+                ships_remaining -= 1;
+            } else {
+                println!("Invalid ship placement. Please try again.");
+            }
+        }
+    }
+
+    // ********** GAME PHASE ********** //
 
     /// Prompts the player to enter coordinates to fire at.
     /// Returns the coordinates as a u32 tuple.
