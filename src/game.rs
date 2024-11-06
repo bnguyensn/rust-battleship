@@ -2,6 +2,12 @@ use crate::board::Board;
 use core::fmt;
 use std::io;
 
+const PLAYER_NAME_MAX_LENGTH: usize = 20;
+
+fn validate_player_name(player_name: &String) -> bool {
+    player_name.len() <= PLAYER_NAME_MAX_LENGTH && player_name.chars().all(|c| c.is_alphanumeric())
+}
+
 enum PlayerId {
     One,
     Two,
@@ -29,7 +35,7 @@ impl Game {
             println!("Enter the name of player {}:", player_number);
             if let Ok(_) = io::stdin().read_line(&mut player_name) {
                 player_name = player_name.trim().to_string();
-                if player_name.len() <= 20 && player_name.chars().all(|c| c.is_alphanumeric()) {
+                if validate_player_name(&player_name) {
                     return player_name;
                 } else {
                     println!("Invalid input. Please enter a name with at most 20 alphanumeric characters.");
