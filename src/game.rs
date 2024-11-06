@@ -50,10 +50,12 @@ impl Game {
         let player_1_name = Self::ask_for_player_name(PlayerId::One);
         let player_2_name = Self::ask_for_player_name(PlayerId::Two);
 
+        let board = Board::new(10);
+
         Game {
             player_1_name,
             player_2_name,
-            board: Board::new(10),
+            board,
         }
     }
 }

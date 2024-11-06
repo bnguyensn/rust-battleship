@@ -1,10 +1,11 @@
 mod board;
+mod game;
 
-use crate::board::Board;
+use crate::game::Game;
 
 fn main() {
-    // Instantiate a new board
-    let mut board = Board::new(10);
+    // Instantiate a new game
+    let mut game = Game::new();
 
     println!("Hello, world!");
 }
