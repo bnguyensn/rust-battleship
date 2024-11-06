@@ -29,10 +29,10 @@ pub struct Game {
 }
 
 impl Game {
-    fn ask_for_player_name(player_number: PlayerId) -> String {
+    fn ask_for_player_name(player_id: PlayerId) -> String {
         let mut player_name = String::new();
         loop {
-            println!("Enter the name of player {}:", player_number);
+            println!("Enter the name of player {}:", player_id);
             if let Ok(_) = io::stdin().read_line(&mut player_name) {
                 player_name = player_name.trim().to_string();
                 if validate_player_name(&player_name) {
@@ -46,6 +46,10 @@ impl Game {
         }
     }
 
+    fn ask_to_place_ship(&self, player_name: &String) {
+        println!("Player {}, please place your ships.", player_name);
+    }
+
     pub fn new() -> Self {
         let player_1_name = Self::ask_for_player_name(PlayerId::One);
         let player_2_name = Self::ask_for_player_name(PlayerId::Two);
@@ -57,5 +61,15 @@ impl Game {
             player_2_name,
             board,
         }
+    }
+
+    pub fn start(&self) {
+        println!(
+            "Welcome to the game, {} and {}!",
+            self.player_1_name, self.player_2_name
+        );
+
+        self.ask_to_place_ship(&self.player_1_name);
+        self.ask_to_place_ship(&self.player_2_name);
     }
 }
