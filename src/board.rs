@@ -16,6 +16,11 @@ const SHIP_PLACEMENT_OVERLAP_MSG: &str =
     "Ship placement overlaps with another ship. Please try again.";
 const FAILED_TO_READ_INPUT_MSG: &str = "Failed to read input.";
 
+#[cfg(debug_assertions)]
+fn debug_parts(parts: &Vec<&str>) {
+    println!("parts: {:?}", parts);
+}
+
 #[derive(Clone)]
 pub struct Board {
     pub grid: Vec<Vec<char>>, // For fixed-size grids: [[char; 10]; 10]
@@ -56,13 +61,17 @@ impl Board {
     // Return the coordinate and the ship orientation from player input.
     // Loops until the player enters valid coordinate and orientation.
     pub fn ask_for_ship_placement(&mut self) -> (usize, usize, Orientation) {
-        let mut placement_input = String::new();
-        loop {
-            println!("Enter the coordinate and orientation for your ship e.g. 3 4 H");
+        println!("Enter the coordinate and orientation for your ship e.g. 3 4 H");
+        'ship_placement: loop {
+            let mut placement_input = String::new();
 
             match io::stdin().read_line(&mut placement_input) {
                 Ok(_) => {
                     let parts: Vec<&str> = placement_input.trim().split_whitespace().collect();
+
+                    #[cfg(debug_assertions)]
+                    debug_parts(&parts);
+
                     if parts.len() != 3 {
                         println!("{}", SHIP_PLACEMENT_INVALID_INPUT_MSG);
                         continue;
@@ -89,14 +98,14 @@ impl Board {
                                 for i in 0..self.ship_size {
                                     if self.grid[x + i][y] != WATER {
                                         println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
-                                        continue;
+                                        continue 'ship_placement;
                                     }
                                 }
                             } else {
                                 for i in 0..self.ship_size {
                                     if self.grid[x][y + i] != WATER {
                                         println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
-                                        continue;
+                                        continue 'ship_placement;
                                     }
                                 }
                             }
@@ -109,7 +118,7 @@ impl Board {
                             return (x, y, orientation);
                         }
                         _ => {
-                            println!("{}", SHIP_PLACEMENT_INVALID_INPUT_MSG);
+                            println!("{}", FAILED_TO_READ_INPUT_MSG);
                         }
                     }
                 }

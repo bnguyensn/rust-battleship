@@ -36,9 +36,9 @@ pub struct Game {
 
 impl Game {
     fn ask_for_player_name(player_id: PlayerId) -> String {
-        let mut player_name = String::new();
+        println!("Enter the name of player {}:", player_id);
         loop {
-            println!("Enter the name of player {}:", player_id);
+            let mut player_name = String::new();
 
             if let Ok(_) = io::stdin().read_line(&mut player_name) {
                 player_name = player_name.trim().to_string();
