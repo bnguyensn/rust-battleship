@@ -1,4 +1,4 @@
-use std::io::{self, Read};
+use std::io;
 
 const HORIZONTAL: char = 'H';
 const VERTICAL: char = 'V';
@@ -86,14 +86,14 @@ impl Board {
                             }
 
                             if orientation == HORIZONTAL {
-                                for i in 0..SHIP_SIZE {
+                                for i in 0..self.ship_size {
                                     if self.grid[x + i][y] != WATER {
                                         println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
                                         continue;
                                     }
                                 }
                             } else {
-                                for i in 0..SHIP_SIZE {
+                                for i in 0..self.ship_size {
                                     if self.grid[x][y + i] != WATER {
                                         println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
                                         continue;
@@ -114,7 +114,7 @@ impl Board {
                     }
                 }
                 Err(_) => {
-                    println!("Failed to read input.");
+                    println!("{}", FAILED_TO_READ_INPUT_MSG);
                 }
             }
         }
