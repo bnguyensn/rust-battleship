@@ -31,13 +31,13 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(size: usize, ship_size: usize) -> Self {
+    pub fn new(grid_size: usize, ship_size: usize) -> Self {
         Board {
-            grid: vec![vec!['~'; size]; size], // For fixed size grids: [['~'; 10]; 10]
-            grid_size: size,
+            grid: vec![vec![WATER; grid_size]; grid_size], // For fixed size grids: [['~'; 10]; 10]
+            grid_size,
             ship_size,
-            ship_x_bound: size - ship_size,
-            ship_y_bound: size - ship_size,
+            ship_x_bound: grid_size - ship_size,
+            ship_y_bound: grid_size - ship_size,
         }
     }
 
@@ -64,7 +64,6 @@ impl Board {
         println!("Enter the coordinate and orientation for your ship e.g. 3 4 H");
         'ship_placement: loop {
             let mut placement_input = String::new();
-
             match io::stdin().read_line(&mut placement_input) {
                 Ok(_) => {
                     let parts: Vec<&str> = placement_input.trim().split_whitespace().collect();

@@ -2,6 +2,8 @@ use crate::board::Board;
 use core::fmt;
 use std::io;
 
+const FAILED_TO_READ_INPUT_MSG: &str = "Failed to read input.";
+
 const PLAYER_NAME_MAX_LENGTH: usize = 20;
 
 fn validate_player_name(player_name: &String) -> bool {
@@ -39,7 +41,6 @@ impl Game {
         println!("Enter the name of player {}:", player_id);
         loop {
             let mut player_name = String::new();
-
             if let Ok(_) = io::stdin().read_line(&mut player_name) {
                 player_name = player_name.trim().to_string();
                 if validate_player_name(&player_name) {
@@ -48,7 +49,7 @@ impl Game {
                     println!("Invalid input. Please enter a name with at most 20 alphanumeric characters.");
                 }
             } else {
-                println!("Failed to read input.");
+                println!("{FAILED_TO_READ_INPUT_MSG}");
             }
         }
     }
