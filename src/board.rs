@@ -1,4 +1,5 @@
 use core::fmt;
+use std::collections::HashMap;
 use std::io;
 
 const HORIZONTAL: char = 'H';
@@ -40,6 +41,7 @@ pub struct Board {
     ship_size: usize,
     ship_x_bound: usize,
     ship_y_bound: usize,
+    ships_coordinates: HashMap<char, Vec<[usize; 2]>>,
 }
 
 impl Board {
@@ -50,24 +52,29 @@ impl Board {
             ship_size,
             ship_x_bound: grid_size - ship_size,
             ship_y_bound: grid_size - ship_size,
+            ships_coordinates: HashMap::new(),
         }
     }
 
     // ********** SETUP PHASE ********** //
 
     pub fn place_ship(&mut self, x: usize, y: usize, orientation: Orientation, ship_id: char) {
+        let mut ship_coordinates: Vec<[usize; 2]> = Vec::new();
         match orientation {
             Orientation::Horizontal => {
                 for i in 0..self.ship_size {
                     self.grid[x + i][y] = ship_id;
+                    ship_coordinates.push([x + i, y]);
                 }
             }
             Orientation::Vertical => {
                 for i in 0..self.ship_size {
                     self.grid[x][y + i] = ship_id;
+                    ship_coordinates.push([x, y + i]);
                 }
             }
         }
+        self.ships_coordinates.insert(ship_id, ship_coordinates);
         println!("Ship {ship_id} placed at ({x}, {y}) with orientation {orientation}");
     }
 
@@ -148,15 +155,27 @@ impl Board {
 
     // ********** GAME PHASE ********** //
 
+    fn sink(&mut self, ship_id: &char) {
+        match self.ships_coordinates.get(&ship_id) {
+            Some(ship_coordinates) => {
+                for coordinate in ship_coordinates {
+                    let (x, y) = (coordinate[0], coordinate[1]);
+                    self.grid[x][y] = WATER;
+                }
+                self.ships_coordinates.remove(&ship_id);
+            }
+            None => {}
+        }
+    }
+
     pub fn shoot(&mut self, x: usize, y: usize) -> Option<char> {
         let target = self.grid[x][y];
         match target {
             WATER => {
-                println!("Miss!");
                 return None;
             }
             _ => {
-                println!("Hit!");
+                self.sink(&target);
                 return Some(target);
             }
         }
