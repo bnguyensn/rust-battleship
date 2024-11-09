@@ -1,12 +1,23 @@
+use core::fmt;
 use std::io;
 
 const HORIZONTAL: char = 'H';
 const VERTICAL: char = 'V';
 const WATER: char = '~';
 
+#[derive(Debug)]
 pub enum Orientation {
-    HORIZONTAL,
-    VERTICAL,
+    Horizontal,
+    Vertical,
+}
+
+impl fmt::Display for Orientation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Orientation::Horizontal => write!(f, "HORIZONTAL"),
+            Orientation::Vertical => write!(f, "VERTICAL"),
+        }
+    }
 }
 
 const SHIP_PLACEMENT_INVALID_INPUT_MSG: &str = "Invalid input. Please enter coordinates in the form 'x y orientation' where x and y are integers, and are separated by a single space, and orientation is either 'H' or 'V'.";
@@ -43,23 +54,24 @@ impl Board {
 
     // ********** SETUP PHASE ********** //
 
-    pub fn place_ship(&mut self, x: usize, y: usize, orientation: Orientation) {
+    pub fn place_ship(&mut self, x: usize, y: usize, orientation: Orientation, ship_id: char) {
         match orientation {
-            Orientation::HORIZONTAL => {
+            Orientation::Horizontal => {
                 for i in 0..self.ship_size {
-                    self.grid[x][y + i] = 'S';
+                    self.grid[x + i][y] = ship_id;
                 }
             }
-            Orientation::VERTICAL => {
+            Orientation::Vertical => {
                 for i in 0..self.ship_size {
-                    self.grid[x + i][y] = 'S';
+                    self.grid[x][y + i] = ship_id;
                 }
             }
         }
+        println!("Ship {ship_id} placed at ({x}, {y}) with orientation {orientation}");
     }
 
     // Return the coordinate and the ship orientation from player input.
-    // Loops until the player enters valid coordinate and orientation.
+    // Loop until the player enters valid coordinate and orientation.
     pub fn ask_for_ship_placement(&mut self) -> (usize, usize, Orientation) {
         println!("Enter the coordinate and orientation for your ship e.g. 3 4 H");
         'ship_placement: loop {
@@ -93,25 +105,32 @@ impl Board {
                                 continue;
                             }
 
-                            if orientation == HORIZONTAL {
-                                for i in 0..self.ship_size {
-                                    if self.grid[x + i][y] != WATER {
-                                        println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
-                                        continue 'ship_placement;
+                            match orientation {
+                                HORIZONTAL => {
+                                    for i in 0..self.ship_size {
+                                        if self.grid[x + i][y] != WATER {
+                                            println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
+                                            continue 'ship_placement;
+                                        }
                                     }
                                 }
-                            } else {
-                                for i in 0..self.ship_size {
-                                    if self.grid[x][y + i] != WATER {
-                                        println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
-                                        continue 'ship_placement;
+                                VERTICAL => {
+                                    for i in 0..self.ship_size {
+                                        if self.grid[x][y + i] != WATER {
+                                            println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
+                                            continue 'ship_placement;
+                                        }
                                     }
+                                }
+                                _ => {
+                                    println!("{}", SHIP_PLACEMENT_INVALID_ORIENTATION_MSG);
+                                    continue;
                                 }
                             }
 
                             let orientation = match orientation {
-                                HORIZONTAL => Orientation::HORIZONTAL,
-                                VERTICAL => Orientation::VERTICAL,
+                                HORIZONTAL => Orientation::Horizontal,
+                                VERTICAL => Orientation::Vertical,
                                 _ => continue,
                             };
                             return (x, y, orientation);
@@ -133,9 +152,9 @@ impl Board {
     /// Prompts the player to enter coordinates to fire at.
     /// Returns the coordinates as a u32 tuple.
     /// Loops until the player enters valid coordinates.
-    fn prompt_for_coordinates(&self) -> (usize, usize) {
+    fn ask_for_shoot_target(&self) -> (usize, usize) {
         loop {
-            println!("Enter a coordinate to fire at e.g. 3 4");
+            println!("Enter a coordinate to shoot at e.g. 3 4");
 
             let mut input = String::new();
             io::stdin()
@@ -157,7 +176,7 @@ impl Board {
     }
 
     fn take_turn(&mut self, player_name: &str) -> bool {
-        let (x, y) = self.prompt_for_coordinates();
+        let (x, y) = self.ask_for_shoot_target();
         false
     }
 }

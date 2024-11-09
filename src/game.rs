@@ -70,12 +70,13 @@ impl Game {
     }
 
     fn setup_ships(&mut self, player_name: &String) {
-        println!("Player {}, please place your ships.", player_name);
+        println!("Player {player_name}, please place your ships.");
 
         let mut ships_to_be_placed = SHIPS_COUNT;
         while ships_to_be_placed > 0 {
             let (x, y, orientation) = self.board.ask_for_ship_placement();
-            self.board.place_ship(x, y, orientation);
+            self.board
+                .place_ship(x, y, orientation, (ships_to_be_placed as u8 + b'0') as char);
             ships_to_be_placed -= 1;
         }
     }
@@ -88,5 +89,7 @@ impl Game {
 
         self.setup_ships(&self.player_1_name.clone());
         self.setup_ships(&self.player_2_name.clone());
+
+        println!("All set, time to play!");
     }
 }
