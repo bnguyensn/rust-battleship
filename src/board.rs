@@ -71,8 +71,8 @@ impl Board {
         println!("Ship {ship_id} placed at ({x}, {y}) with orientation {orientation}");
     }
 
-    // Return the coordinate and the ship orientation from player input.
-    // Loop until the player enters valid coordinate and orientation.
+    // Return the ship placement coordinate and orientation from player input.
+    // Loop until the player enters a valid coordinate and orientation.
     pub fn ask_for_ship_placement(&mut self) -> (usize, usize, Orientation) {
         println!("Enter the coordinate and orientation for your ship e.g. 3 4 H");
         'ship_placement: loop {
@@ -148,10 +148,23 @@ impl Board {
 
     // ********** GAME PHASE ********** //
 
-    /// Prompts the player to enter coordinates to fire at.
-    /// Returns the coordinates as a u32 tuple.
-    /// Loops until the player enters valid coordinates.
-    fn ask_for_shoot_target(&self) -> (usize, usize) {
+    pub fn shoot(&mut self, x: usize, y: usize) -> Option<char> {
+        let target = self.grid[x][y];
+        match target {
+            WATER => {
+                println!("Miss!");
+                return None;
+            }
+            _ => {
+                println!("Hit!");
+                return Some(target);
+            }
+        }
+    }
+
+    /// Return the shooting coordinate from player input.
+    /// Loops until the player enters a valid coordinate.
+    pub fn ask_for_shoot_target(&self) -> (usize, usize) {
         println!("Enter a coordinate to shoot at e.g. 3 4");
         loop {
             let mut input = String::new();
@@ -185,10 +198,5 @@ impl Board {
                 }
             }
         }
-    }
-
-    fn take_turn(&mut self, player_name: &str) -> bool {
-        let (x, y) = self.ask_for_shoot_target();
-        false
     }
 }
