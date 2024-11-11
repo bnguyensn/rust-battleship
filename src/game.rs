@@ -1,4 +1,5 @@
 use crate::board::Board;
+use crate::words::pluralize;
 use core::fmt;
 use std::io;
 
@@ -115,6 +116,12 @@ impl Game {
             );
             if player_1_hit_a_ship {
                 self.player_2_ships_remaining -= 1;
+                print!(
+                    "{} - remaining {}: {} ",
+                    &self.player_2_name,
+                    pluralize("ship", self.player_2_ships_remaining),
+                    self.player_2_ships_remaining
+                );
             }
             if self.player_2_ships_remaining == 0 {
                 break;
@@ -126,6 +133,12 @@ impl Game {
             );
             if player_2_hit_a_ship {
                 self.player_1_ships_remaining -= 1;
+                print!(
+                    "{} - remaining {}: {} ",
+                    &self.player_1_name,
+                    pluralize("ship", self.player_1_ships_remaining),
+                    self.player_1_ships_remaining
+                );
             }
             if self.player_1_ships_remaining == 0 {
                 break;

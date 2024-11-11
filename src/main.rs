@@ -1,5 +1,6 @@
 mod board;
 mod game;
+mod words;
 
 use crate::game::Game;
 
