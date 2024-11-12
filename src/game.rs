@@ -8,7 +8,9 @@ const FAILED_TO_READ_INPUT_MSG: &str = "Failed to read input.";
 const PLAYER_NAME_MAX_LENGTH: usize = 20;
 
 fn validate_player_name(player_name: &String) -> bool {
-    player_name.len() <= PLAYER_NAME_MAX_LENGTH && player_name.chars().all(|c| c.is_alphanumeric())
+    player_name.len() <= PLAYER_NAME_MAX_LENGTH
+        && player_name.len() > 0
+        && player_name.chars().all(|c| c.is_alphanumeric())
 }
 
 enum PlayerId {
@@ -25,7 +27,9 @@ impl fmt::Display for PlayerId {
     }
 }
 
-const BOARD_SIZE: usize = 10;
+const BOARD_SIZE_MIN: usize = 5;
+const BOARD_SIZE_MAX: usize = 20;
+const BOARD_SIZE_DEFAULT: usize = 10;
 const SHIP_SIZE: usize = 2; // Must not exceed the grid size.
 const SHIPS_COUNT: usize = 2; // Must not mathematically exceed the grid size.
 
@@ -50,6 +54,44 @@ fn ask_for_player_name(player_id: PlayerId) -> String {
                 println!(
                     "Invalid input. Please enter a name with at most 20 alphanumeric characters."
                 );
+            }
+        } else {
+            println!("{FAILED_TO_READ_INPUT_MSG}");
+        }
+    }
+}
+
+fn ask_for_board_size() -> usize {
+    println!(
+        "Enter the size of the board. The board is a square with its side ranging from {} to {}. Leave blank for the default size (10):",
+        BOARD_SIZE_MIN, BOARD_SIZE_MAX
+    );
+    loop {
+        let mut input = String::new();
+        if let Ok(_) = io::stdin().read_line(&mut input) {
+            let trimmed_input = input.trim();
+
+            if trimmed_input.is_empty() {
+                return BOARD_SIZE_DEFAULT;
+            }
+
+            match input.trim().parse::<usize>() {
+                Ok(size) => {
+                    if size >= BOARD_SIZE_MIN && size <= BOARD_SIZE_MAX {
+                        return size;
+                    } else {
+                        println!(
+                            "Invalid input. Please enter a number between {} and {}.",
+                            BOARD_SIZE_MIN, BOARD_SIZE_MAX
+                        );
+                    }
+                }
+                Err(_) => {
+                    println!(
+                        "Invalid input. Please enter a number between {} and {}.",
+                        BOARD_SIZE_MIN, BOARD_SIZE_MAX
+                    );
+                }
             }
         } else {
             println!("{FAILED_TO_READ_INPUT_MSG}");
@@ -87,20 +129,25 @@ impl Game {
         let player_1_name = ask_for_player_name(PlayerId::One);
         let player_2_name = ask_for_player_name(PlayerId::Two);
 
+        let board_size = ask_for_board_size();
+
         Game {
             player_1_name,
             player_2_name,
             player_1_ships_remaining: SHIPS_COUNT,
             player_2_ships_remaining: SHIPS_COUNT,
-            player_1_board: Board::new(BOARD_SIZE, SHIP_SIZE),
-            player_2_board: Board::new(BOARD_SIZE, SHIP_SIZE),
+            player_1_board: Board::new(board_size, SHIP_SIZE),
+            player_2_board: Board::new(board_size, SHIP_SIZE),
         }
     }
 
     pub fn start(&mut self) {
         println!(
-            "Welcome to the game, {} and {}!",
-            self.player_1_name, self.player_2_name
+            "Welcome to the game, {} and {}! The board size is {}x{}.",
+            self.player_1_name,
+            self.player_2_name,
+            self.player_1_board.grid_size, // Assuming both players have the same board size.
+            self.player_1_board.grid_size
         );
 
         setup_ships(&self.player_1_name, &mut self.player_1_board);

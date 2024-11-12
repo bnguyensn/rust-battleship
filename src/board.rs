@@ -37,7 +37,7 @@ fn debug_parts(parts: &Vec<&str>) {
 #[derive(Clone)]
 pub struct Board {
     pub grid: Vec<Vec<char>>, // For fixed-size grids: [[char; 10]; 10]
-    grid_size: usize,
+    pub grid_size: usize,
     ship_size: usize,
     ship_x_bound: usize,
     ship_y_bound: usize,
