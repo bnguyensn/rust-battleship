@@ -218,4 +218,16 @@ impl Board {
             }
         }
     }
+
+    pub fn print_board(&self) {
+        // Print the board
+        println!("  0 1 2 3 4 5 6 7 8 9");
+        for (i, row) in self.grid.iter().enumerate() {
+            print!("{i} ");
+            for cell in row {
+                print!("{cell} ");
+            }
+            println!();
+        }
+    }
 }

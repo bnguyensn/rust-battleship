@@ -150,6 +150,8 @@ impl Game {
             self.player_1_board.grid_size
         );
 
+        self.player_1_board.print_board();
+
         setup_ships(&self.player_1_name, &mut self.player_1_board);
         setup_ships(&self.player_2_name, &mut self.player_2_board);
 
