@@ -101,11 +101,11 @@ fn ask_for_board_size() -> usize {
 
 fn setup_ships(player_name: &String, board: &mut Board) {
     println!("{player_name}, please place your ships.");
-    let mut ships_to_be_placed = SHIPS_COUNT;
-    while ships_to_be_placed > 0 {
+    let mut ships_to_be_placed = 1;
+    while ships_to_be_placed <= SHIPS_COUNT {
         let (x, y, orientation) = board.ask_for_ship_placement();
         board.place_ship(x, y, orientation, (ships_to_be_placed as u8 + b'0') as char);
-        ships_to_be_placed -= 1;
+        ships_to_be_placed += 1;
     }
 }
 
@@ -150,10 +150,11 @@ impl Game {
             self.player_1_board.grid_size
         );
 
+        setup_ships(&self.player_1_name, &mut self.player_1_board);
         self.player_1_board.print_board();
 
-        setup_ships(&self.player_1_name, &mut self.player_1_board);
         setup_ships(&self.player_2_name, &mut self.player_2_board);
+        self.player_2_board.print_board();
 
         println!("All set, time to play!");
 
