@@ -34,6 +34,14 @@ fn debug_parts(parts: &Vec<&str>) {
     println!("parts: {:?}", parts);
 }
 
+fn get_coordinate(grid: &Vec<Vec<char>>, x: usize, y: usize) -> char {
+    grid[x][y]
+}
+
+fn set_coordinate(grid: &mut Vec<Vec<char>>, x: usize, y: usize, value: char) {
+    grid[x][y] = value;
+}
+
 #[derive(Clone)]
 pub struct Board {
     pub grid: Vec<Vec<char>>, // For fixed-size grids: [[char; 10]; 10]
@@ -63,13 +71,13 @@ impl Board {
         match orientation {
             Orientation::Horizontal => {
                 for i in 0..self.ship_size {
-                    self.grid[x + i][y] = ship_id;
+                    set_coordinate(&mut self.grid, x + i, y, ship_id);
                     ship_coordinates.push([x + i, y]);
                 }
             }
             Orientation::Vertical => {
                 for i in 0..self.ship_size {
-                    self.grid[x][y + i] = ship_id;
+                    set_coordinate(&mut self.grid, x, y + i, ship_id);
                     ship_coordinates.push([x, y + i]);
                 }
             }
@@ -114,7 +122,7 @@ impl Board {
                             match orientation {
                                 HORIZONTAL => {
                                     for i in 0..self.ship_size {
-                                        if self.grid[x + i][y] != WATER {
+                                        if get_coordinate(&self.grid, x + i, y) != WATER {
                                             println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
                                             continue 'ship_placement;
                                         }
@@ -122,7 +130,7 @@ impl Board {
                                 }
                                 VERTICAL => {
                                     for i in 0..self.ship_size {
-                                        if self.grid[x][y + i] != WATER {
+                                        if get_coordinate(&self.grid, x, y + i) != WATER {
                                             println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
                                             continue 'ship_placement;
                                         }
@@ -160,7 +168,7 @@ impl Board {
             Some(ship_coordinates) => {
                 for coordinate in ship_coordinates {
                     let (x, y) = (coordinate[0], coordinate[1]);
-                    self.grid[x][y] = WATER;
+                    set_coordinate(&mut self.grid, x, y, WATER);
                 }
                 self.ships_coordinates.remove(&ship_id);
             }
@@ -169,7 +177,7 @@ impl Board {
     }
 
     pub fn shoot(&mut self, x: usize, y: usize) -> Option<char> {
-        let target = self.grid[x][y];
+        let target = get_coordinate(&self.grid, x, y);
         match target {
             WATER => {
                 return None;
