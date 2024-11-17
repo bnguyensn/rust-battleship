@@ -35,11 +35,11 @@ fn debug_parts(parts: &Vec<&str>) {
 }
 
 fn get_coordinate(grid: &Vec<Vec<char>>, x: usize, y: usize) -> char {
-    grid[x][y]
+    grid[y][x]
 }
 
 fn set_coordinate(grid: &mut Vec<Vec<char>>, x: usize, y: usize, value: char) {
-    grid[x][y] = value;
+    grid[y][x] = value;
 }
 
 #[derive(Clone)]
@@ -72,13 +72,13 @@ impl Board {
             Orientation::Horizontal => {
                 for i in 0..self.ship_size {
                     set_coordinate(&mut self.grid, x + i, y, ship_id);
-                    ship_coordinates.push([x + i, y]);
+                    ship_coordinates.push([y, x + i]);
                 }
             }
             Orientation::Vertical => {
                 for i in 0..self.ship_size {
                     set_coordinate(&mut self.grid, x, y + i, ship_id);
-                    ship_coordinates.push([x, y + i]);
+                    ship_coordinates.push([y + i, x]);
                 }
             }
         }
@@ -114,7 +114,7 @@ impl Board {
                                 continue;
                             }
 
-                            if x >= self.ship_x_bound || y >= self.ship_y_bound {
+                            if x > self.ship_x_bound || y > self.ship_y_bound {
                                 println!("Coordinate out of bounds. Please enter values between 0 and {} for x and 0 and {} for y.", self.ship_x_bound, self.ship_y_bound);
                                 continue;
                             }
