@@ -49,6 +49,7 @@ fn ask_for_player_name(player_id: PlayerId) -> String {
         if let Ok(_) = io::stdin().read_line(&mut player_name) {
             player_name = player_name.trim().to_string();
             if validate_player_name(&player_name) {
+                println!("Player {} is {}.\n", player_id, &player_name);
                 return player_name;
             } else {
                 println!(
