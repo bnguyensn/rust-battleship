@@ -64,6 +64,19 @@ impl Board {
         }
     }
 
+    // ********** UTILITIES ********** //
+
+    fn check_bounds(&self, x: usize, y: usize) -> bool {
+        x < self.grid_size && y < self.grid_size
+    }
+
+    fn check_bounds_ship(&self, x: usize, y: usize, ship_orientation: &Orientation) -> bool {
+        match ship_orientation {
+            Orientation::Horizontal => self.check_bounds(x + (&self.ship_size - 1), y),
+            Orientation::Vertical => self.check_bounds(x, y + (&self.ship_size - 1)),
+        }
+    }
+
     // ********** SETUP PHASE ********** //
 
     pub fn place_ship(&mut self, x: usize, y: usize, orientation: Orientation, ship_id: char) {
@@ -107,20 +120,24 @@ impl Board {
                         parts[2].chars().next(),
                     );
 
-                    match (x, y, orientation_char) {
-                        (Ok(x), Ok(y), Some(orientation)) => {
-                            if orientation != HORIZONTAL && orientation != VERTICAL {
-                                println!("{}", SHIP_PLACEMENT_INVALID_ORIENTATION_MSG);
-                                continue;
-                            }
+                    let orientation = match orientation_char {
+                        Some(HORIZONTAL) => Ok(Orientation::Horizontal),
+                        Some(VERTICAL) => Ok(Orientation::Vertical),
+                        _ => {
+                            println!("{}", SHIP_PLACEMENT_INVALID_ORIENTATION_MSG);
+                            Err(SHIP_PLACEMENT_INVALID_ORIENTATION_MSG)
+                        }
+                    };
 
-                            if x > self.ship_x_bound || y > self.ship_y_bound {
+                    match (x, y, orientation) {
+                        (Ok(x), Ok(y), Ok(orientation)) => {
+                            if !self.check_bounds_ship(x, y, &orientation) {
                                 println!("Coordinate out of bounds. Please enter values between 0 and {} for x and 0 and {} for y.", self.ship_x_bound, self.ship_y_bound);
                                 continue;
                             }
 
                             match orientation {
-                                HORIZONTAL => {
+                                Orientation::Horizontal => {
                                     for i in 0..self.ship_size {
                                         if get_coordinate(&self.grid, x + i, y) != WATER {
                                             println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
@@ -128,7 +145,7 @@ impl Board {
                                         }
                                     }
                                 }
-                                VERTICAL => {
+                                Orientation::Vertical => {
                                     for i in 0..self.ship_size {
                                         if get_coordinate(&self.grid, x, y + i) != WATER {
                                             println!("{}", SHIP_PLACEMENT_OVERLAP_MSG);
@@ -136,17 +153,8 @@ impl Board {
                                         }
                                     }
                                 }
-                                _ => {
-                                    println!("{}", SHIP_PLACEMENT_INVALID_ORIENTATION_MSG);
-                                    continue;
-                                }
                             }
 
-                            let orientation = match orientation {
-                                HORIZONTAL => Orientation::Horizontal,
-                                VERTICAL => Orientation::Vertical,
-                                _ => continue,
-                            };
                             return (x, y, orientation);
                         }
                         _ => {
@@ -160,6 +168,9 @@ impl Board {
             }
         }
     }
+
+    // TODO: add a single public method that performs place_ship() and ask_for_ship_placement() in one go.
+    //  Then, make place_ship() and ask_for_ship_placement() private.
 
     // ********** GAME PHASE ********** //
 
@@ -237,5 +248,65 @@ impl Board {
             }
             println!();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn assert_check_bounds(board: &Board, x: usize, y: usize, expected: bool) {
+        assert!(
+            board.check_bounds(x, y) == expected,
+            "Expected check_bounds to return {} for ({}, {}) when grid_size is {}",
+            expected,
+            x,
+            y,
+            board.grid_size
+        );
+    }
+
+    fn assert_check_bounds_ship(
+        board: &Board,
+        x: usize,
+        y: usize,
+        orientation: &Orientation,
+        expected: bool,
+    ) {
+        assert!(
+            board.check_bounds_ship(x, y, orientation) == expected,
+            "Expected check_bounds_ship to return {} for ship ({}, {}) ({}) when grid_size is {}",
+            expected,
+            x,
+            y,
+            orientation,
+            board.grid_size
+        );
+    }
+
+    #[test]
+    fn test_check_bounds() {
+        let board = Board::new(10, 2);
+
+        assert_check_bounds(&board, 0, 0, true);
+        assert_check_bounds(&board, 5, 5, true);
+        assert_check_bounds(&board, 9, 9, true);
+        assert_check_bounds(&board, 10, 10, false);
+        assert_check_bounds(&board, 10, 5, false);
+        assert_check_bounds(&board, 5, 10, false);
+    }
+
+    #[test]
+    fn test_check_bounds_ship() {
+        let board = Board::new(10, 2);
+
+        assert_check_bounds_ship(&board, 0, 0, &Orientation::Horizontal, true);
+        assert_check_bounds_ship(&board, 0, 0, &Orientation::Vertical, true);
+        assert_check_bounds_ship(&board, 8, 9, &Orientation::Horizontal, true);
+        assert_check_bounds_ship(&board, 9, 8, &Orientation::Vertical, true);
+        assert_check_bounds_ship(&board, 9, 9, &Orientation::Horizontal, false);
+        assert_check_bounds_ship(&board, 9, 8, &Orientation::Horizontal, false);
+        assert_check_bounds_ship(&board, 9, 9, &Orientation::Vertical, false);
+        assert_check_bounds_ship(&board, 8, 9, &Orientation::Vertical, false);
     }
 }
