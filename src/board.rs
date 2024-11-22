@@ -21,6 +21,12 @@ impl fmt::Display for Orientation {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct Ship {
+    pub id: char,
+    pub coordinates: Vec<[usize; 2]>,
+}
+
 const SHIP_PLACEMENT_INVALID_INPUT_MSG: &str = "Invalid input. Please enter coordinates in the form 'x y orientation' where x and y are integers, and are separated by a single space, and orientation is either 'H' or 'V'.";
 const SHIP_PLACEMENT_INVALID_ORIENTATION_MSG: &str =
     "Invalid orientation. Please enter either 'H' for horizontal or 'V' for vertical.";
@@ -49,7 +55,7 @@ pub struct Board {
     ship_size: usize,
     ship_x_bound: usize,
     ship_y_bound: usize,
-    ships_coordinates: HashMap<char, Vec<[usize; 2]>>,
+    ships: HashMap<char, Ship>,
 }
 
 impl Board {
@@ -60,7 +66,7 @@ impl Board {
             ship_size,
             ship_x_bound: grid_size - ship_size,
             ship_y_bound: grid_size - ship_size,
-            ships_coordinates: HashMap::new(),
+            ships: HashMap::new(),
         }
     }
 
@@ -75,6 +81,14 @@ impl Board {
             Orientation::Horizontal => self.check_bounds(x + (&self.ship_size - 1), y),
             Orientation::Vertical => self.check_bounds(x, y + (&self.ship_size - 1)),
         }
+    }
+
+    fn get_ship_by_id(&self, ship_id: char) -> Option<&Ship> {
+        self.ships.get(&ship_id)
+    }
+
+    pub fn get_remaining_ships_count(&self) -> usize {
+        self.ships.len()
     }
 
     // ********** SETUP PHASE ********** //
@@ -95,7 +109,11 @@ impl Board {
                 }
             }
         }
-        self.ships_coordinates.insert(ship_id, ship_coordinates);
+        let ship = Ship {
+            id: ship_id,
+            coordinates: ship_coordinates,
+        };
+        self.ships.insert(ship_id, ship);
         println!("Ship {ship_id} placed at ({x}, {y}) with orientation {orientation}");
     }
 
@@ -175,13 +193,13 @@ impl Board {
     // ********** GAME PHASE ********** //
 
     fn sink(&mut self, ship_id: &char) {
-        match self.ships_coordinates.get(&ship_id) {
-            Some(ship_coordinates) => {
-                for coordinate in ship_coordinates {
+        match self.ships.get(&ship_id) {
+            Some(ship) => {
+                for coordinate in ship.coordinates.iter() {
                     let (x, y) = (coordinate[0], coordinate[1]);
                     set_coordinate(&mut self.grid, x, y, WATER);
                 }
-                self.ships_coordinates.remove(&ship_id);
+                self.ships.remove(&ship_id);
             }
             None => {}
         }

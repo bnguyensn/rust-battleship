@@ -168,7 +168,7 @@ impl Game {
             if player_1_hit_a_ship {
                 self.player_2_ships_remaining -= 1;
                 print!(
-                    "{} - remaining {}: {} ",
+                    "{} - remaining {}: {}\n",
                     &self.player_2_name,
                     pluralize("ship", self.player_2_ships_remaining),
                     self.player_2_ships_remaining
@@ -185,7 +185,7 @@ impl Game {
             if player_2_hit_a_ship {
                 self.player_1_ships_remaining -= 1;
                 print!(
-                    "{} - remaining {}: {} ",
+                    "{} - remaining {}: {}\n",
                     &self.player_1_name,
                     pluralize("ship", self.player_1_ships_remaining),
                     self.player_1_ships_remaining
