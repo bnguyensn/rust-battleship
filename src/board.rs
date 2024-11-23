@@ -25,6 +25,7 @@ impl fmt::Display for Orientation {
 pub struct Ship {
     pub id: char,
     pub coordinates: Vec<[usize; 2]>,
+    pub is_sunk: bool,
 }
 
 const SHIP_PLACEMENT_INVALID_INPUT_MSG: &str = "Invalid input. Please enter coordinates in the form 'x y orientation' where x and y are integers, and are separated by a single space, and orientation is either 'H' or 'V'.";
@@ -112,6 +113,7 @@ impl Board {
         let ship = Ship {
             id: ship_id,
             coordinates: ship_coordinates,
+            is_sunk: false,
         };
         self.ships.insert(ship_id, ship);
         println!("Ship {ship_id} placed at ({x}, {y}) with orientation {orientation}");
