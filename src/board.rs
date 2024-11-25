@@ -201,6 +201,7 @@ impl Board {
                     let (x, y) = (coordinate[0], coordinate[1]);
                     set_coordinate(&mut self.grid, x, y, WATER);
                 }
+                self.ships.get_mut(&ship_id).unwrap().is_sunk = true;
                 self.ships.remove(&ship_id);
             }
             None => {}
