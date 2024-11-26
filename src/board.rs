@@ -215,8 +215,12 @@ impl Board {
                 return None;
             }
             _ => {
-                self.sink(&target);
-                return Some(target);
+                if self.get_ship_by_id(target).unwrap().is_sunk {
+                    return None;
+                } else {
+                    self.sink(&target);
+                    return Some(target);
+                }
             }
         }
     }
