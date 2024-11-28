@@ -214,14 +214,18 @@ impl Board {
             WATER => {
                 return None;
             }
-            _ => {
-                if self.get_ship_by_id(target).unwrap().is_sunk {
+            _ => match self.get_ship_by_id(target) {
+                None => {
                     return None;
-                } else {
+                }
+                Some(ship) => {
+                    if ship.is_sunk {
+                        return None;
+                    }
                     self.sink(&target);
                     return Some(target);
                 }
-            }
+            },
         }
     }
 
