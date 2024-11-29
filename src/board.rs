@@ -338,4 +338,16 @@ mod tests {
         assert_check_bounds_ship(&board, 9, 9, &Orientation::Vertical, false);
         assert_check_bounds_ship(&board, 8, 9, &Orientation::Vertical, false);
     }
+
+    #[test]
+    fn test_place_ship() {
+        let mut board = Board::new(10, 10);
+
+        assert!(board.get_remaining_ships_count() == 0);
+
+        board.place_ship(0, 0, Orientation::Horizontal, '1');
+
+        assert!(board.get_remaining_ships_count() == 1);
+        assert!(board.get_ship_by_id('1').is_some());
+    }
 }
