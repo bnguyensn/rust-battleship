@@ -341,7 +341,7 @@ mod tests {
 
     #[test]
     fn test_place_ship() {
-        let mut board = Board::new(10, 10);
+        let mut board = Board::new(10, 2);
 
         assert!(board.get_remaining_ships_count() == 0);
 
@@ -349,5 +349,10 @@ mod tests {
 
         assert!(board.get_remaining_ships_count() == 1);
         assert!(board.get_ship_by_id('1').is_some());
+
+        board.place_ship(0, 1, Orientation::Vertical, '2');
+
+        assert!(board.get_remaining_ships_count() == 2);
+        assert!(board.get_ship_by_id('2').is_some());
     }
 }
